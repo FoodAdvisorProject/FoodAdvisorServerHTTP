@@ -55,12 +55,12 @@ object JSONProtocol extends DefaultJsonProtocol {
         "second_name"->JsString(obj.second_name),
         "bool" -> JsBoolean(obj.bool),
         "enterprise_description"->JsString(obj.enterprise_description),
-        "description"->JsString(a.description),
+        "description"->JsString(obj.description),
         "photo"-> JsString("")
       )
     }
 
-      def read(json: JsValue): User = {
+      def read(v: JsValue): User = {
       v.asJsObject().getFields(
         "user_id",
         "login",
@@ -72,8 +72,8 @@ object JSONProtocol extends DefaultJsonProtocol {
         "enterprise,description",
         "photo") match {
           // If Some fields aren't initialized throws an exception
-          case Seq(JsNumber(id),JsString(l),JsString(p),JsString(e),JsString(n),JsString(s_n),JsBoolean(b),JsString(desc),JsString(photo))
-          => new Article(id.toLong,l,p,e,n,s_m,b,desc,null)
+          case Seq(JsNumber(id),JsString(login),JsString(passw),JsString(eemail),JsString(name),JsString(s_name),JsBoolean(bool),JsString(desc),JsString(photo))
+          => new Article(id.toLong,login,passw,email,name,s_name,bool,desc,null)
           case _
           => throw new DeserializationException("User Expected.")
         }
@@ -93,7 +93,7 @@ object JSONProtocol extends DefaultJsonProtocol {
       )
     }
 
-      def read(json: JsValue): Transaction = {
+      def read(v: JsValue): Transaction = {
       v.asJsObject().getFields(
         "id",
         "article_id",
@@ -102,8 +102,8 @@ object JSONProtocol extends DefaultJsonProtocol {
         "longitude",
         "latitude") match {
           // If Some fields aren't initialized throws an exception
-          case Seq(JsNumber(id),JsNumber(a_id),JsNumber(b_id),JsNumber(s_id),JsNumber(lo),JsNumber(la))
-          => new Article(id.toLong,a_id.toLong,b_id.toLong,s_id.toLong,lo.toFloat,la.toFloat)
+          case Seq(JsNumber(id),JsNumber(article_id),JsNumber(buyer_id),JsNumber(seller_id),JsNumber(longitude),JsNumber(latitude))
+          => new Article(id.toLong,article_id.toLong,buyer_id.toLong,seller_id.toLong,longitude.toFloat,latitude.toFloat)
           case _
           => throw new DeserializationException("Transaction Expected.")
         }
@@ -119,7 +119,7 @@ object JSONProtocol extends DefaultJsonProtocol {
       )
     }
 
-      def read(json: JsValue): Coordinates = {
+      def read(v: JsValue): Coordinates = {
       v.asJsObject().getFields(
         "longitude",
         "latitude") match {
@@ -129,8 +129,7 @@ object JSONProtocol extends DefaultJsonProtocol {
           case _
           => throw new DeserializationException("Coordinates Expected.")
         }
+        }
     }
-
-  }
 
 }
