@@ -119,7 +119,7 @@ object JSONProtocol extends DefaultJsonProtocol {
       )
     }
 
-      def read(json: JsValue): Transaction = {
+      def read(json: JsValue): Coordinates = {
       v.asJsObject().getFields(
         "longitude",
         "latitude") match {
