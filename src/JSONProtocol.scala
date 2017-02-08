@@ -41,12 +41,94 @@ object JSONProtocol extends DefaultJsonProtocol {
           => throw new DeserializationException("Article Expected.")
         }
     }
+}
 
     // @TODO Implement the RootJSONFormat for each class in classes
     implicit object UserJSON extends RootJsonFormat[classes.User]{
-      def write(obj: User): JsValue = ???
+      def write(obj: User): JsValue ={
+      JsObject(
+        "user_id"->JsNumber(obj.user_id),
+        "login"->JsString(obj.login),
+        "passw"->JsString(obj.passw),
+        "email"->JsString(obj.email),
+        "name"->JsString(obj.name),
+        "second_name"->JsString(obj.second_name),
+        "bool" -> JsBoolean(obj.bool),
+        "enterprise_description"->JsString(obj.enterprise_description),
+        "description"->JsString(a.description),
+        "photo"-> JsString("")
+      )
+    }
 
-      def read(json: JsValue): User = ???
+      def read(json: JsValue): User = {
+      v.asJsObject().getFields(
+        "user_id",
+        "login",
+        "passw",
+        "email",
+        "name",
+        "second_name",
+        "bool",
+        "enterprise,description",
+        "photo") match {
+          // If Some fields aren't initialized throws an exception
+          case Seq(JsNumber(id),JsString(l),JsString(p),JsString(e),JsString(n),JsString(s_n),JsBoolean(b),JsString(desc),JsString(photo))
+          => new Article(id.toLong,l,p,e,n,s_m,b,desc,null)
+          case _
+          => throw new DeserializationException("User Expected.")
+        }
+    }
+}
+
+    // @TODO Implement the RootJSONFormat for each class in classes
+    implicit object UserJSON extends RootJsonFormat[classes.Transaction]{
+      def write(obj: Transaction): JsValue ={
+      JsObject(
+        "id"->JsNumber(obj.id),
+        "article_id"->JsNumber(obj.article_id),
+        "buyer_id"->JsNumber(obj.buyer_id),
+        "seller_id"->JsNumber(obj.seller_id),
+        "longitude"->JsNumber(obj.longitude),
+        "latitude"->JsNumber(obj.latitude)
+      )
+    }
+
+      def read(json: JsValue): Transaction = {
+      v.asJsObject().getFields(
+        "id",
+        "article_id",
+        "buyer_id",
+        "seller_id",
+        "longitude",
+        "latitude") match {
+          // If Some fields aren't initialized throws an exception
+          case Seq(JsNumber(id),JsNumber(a_id),JsNumber(b_id),JsNumber(s_id),JsNumber(lo),JsNumber(la))
+          => new Article(id.toLong,a_id.toLong,b_id.toLong,s_id.toLong,lo.toFloat,la.toFloat)
+          case _
+          => throw new DeserializationException("Transaction Expected.")
+        }
+    }
+
+  }
+    // @TODO Implement the RootJSONFormat for each class in classes
+    implicit object UserJSON extends RootJsonFormat[classes.Coordinates]{
+      def write(obj: Coordinates): JsValue ={
+      JsObject(
+        "longitude"->JsNumber(obj.longitude),
+        "latitude"->JsNumber(obj.latitude)
+      )
+    }
+
+      def read(json: JsValue): Coordinates = {
+      v.asJsObject().getFields(
+        "longitude",
+        "latitude") match {
+          // If Some fields aren't initialized throws an exception
+          case Seq(JsNumber(lo),JsNumber(la))
+          => new Article(lo.toFloat,la.toFloat)
+          case _
+          => throw new DeserializationException("Coordinates Expected.")
+        }
     }
 
   }
