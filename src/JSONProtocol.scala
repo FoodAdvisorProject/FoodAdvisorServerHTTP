@@ -73,7 +73,7 @@ object JSONProtocol extends DefaultJsonProtocol {
         "photo") match {
           // If Some fields aren't initialized throws an exception
           case Seq(JsNumber(id),JsString(login),JsString(passw),JsString(eemail),JsString(name),JsString(s_name),JsBoolean(bool),JsString(desc),JsString(photo))
-          => new Article(id.toLong,login,passw,email,name,s_name,bool,desc,null)
+          => new User(id.toLong,login,passw,email,name,s_name,bool,desc,null)
           case _
           => throw new DeserializationException("User Expected.")
         }
@@ -81,7 +81,7 @@ object JSONProtocol extends DefaultJsonProtocol {
 }
 
     // @TODO Implement the RootJSONFormat for each class in classes
-    implicit object UserJSON extends RootJsonFormat[classes.Transaction]{
+    implicit object TransactionJSON extends RootJsonFormat[classes.Transaction]{
       def write(obj: Transaction): JsValue ={
       JsObject(
         "id"->JsNumber(obj.id),
@@ -103,33 +103,11 @@ object JSONProtocol extends DefaultJsonProtocol {
         "latitude") match {
           // If Some fields aren't initialized throws an exception
           case Seq(JsNumber(id),JsNumber(article_id),JsNumber(buyer_id),JsNumber(seller_id),JsNumber(longitude),JsNumber(latitude))
-          => new Article(id.toLong,article_id.toLong,buyer_id.toLong,seller_id.toLong,longitude.toFloat,latitude.toFloat)
+          => new Transaction(id.toLong,article_id.toLong,buyer_id.toLong,seller_id.toLong,longitude.toFloat,latitude.toFloat)
           case _
           => throw new DeserializationException("Transaction Expected.")
         }
     }
 
   }
-    // @TODO Implement the RootJSONFormat for each class in classes
-    implicit object UserJSON extends RootJsonFormat[classes.Coordinates]{
-      def write(obj: Coordinates): JsValue ={
-      JsObject(
-        "longitude"->JsNumber(obj.longitude),
-        "latitude"->JsNumber(obj.latitude)
-      )
-    }
-
-      def read(v: JsValue): Coordinates = {
-      v.asJsObject().getFields(
-        "longitude",
-        "latitude") match {
-          // If Some fields aren't initialized throws an exception
-          case Seq(JsNumber(lo),JsNumber(la))
-          => new Article(lo.toFloat,la.toFloat)
-          case _
-          => throw new DeserializationException("Coordinates Expected.")
-        }
-        }
-    }
-
 }
