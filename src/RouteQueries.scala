@@ -7,6 +7,15 @@ import spray.json._
 /**
   * Created by bp on 08/02/17.
   */
+/*
+@TODO
+Add cookies in order to let users get only personal information and limit privileges.
+function that has to be limited are:
+-addUser
+-addArticle
+-addTransaction
+-getUser
+*/
 object RouteQueries {
   val NOTFOUND ="Error: object not found"
   def getRoute(implicit dbf:DBFunctions ):Route = {
