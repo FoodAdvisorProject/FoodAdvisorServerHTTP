@@ -14,7 +14,7 @@ object RouteQueries {
 
     path ("getArticle"){
       get{
-        parameter("article_id".as[Long]) {
+        parameter("art_id".as[Long]) {
           (art_id: Long) => {
 
             try {
@@ -72,7 +72,7 @@ object RouteQueries {
 
           }
         }~
-        parameter("art_id".as[Long],"usr_id".as[Long]) {
+        parameter("art_id".as[Long],"user_id".as[Long]) {
           (art_id: Long, usr_id: Long) => {
 
             try {
@@ -93,11 +93,25 @@ object RouteQueries {
     }~
     path("getArticleTravel"){
       get {
-        parameter("art_id".as[Long], "buyer_id".as[Long]) {
+        parameter("art_id".as[Long], "user_id".as[Long]) {
           (art_id: Long, buyer_id: Long) =>
             try {
-              val tran = dbf.getTransaction(art_id,buyer_id)
-              val ret = if (tran != null) tran.toJson.toString() else NOTFOUND
+              val trav = dbf.getArticleTravel(art_id,buyer_id)
+              val ret = if (trav != null) trav.toJson.toString() else NOTFOUND
+              complete(HttpEntity(ContentTypes.`application/json`, ret))
+            }
+            catch {
+              case e: Throwable =>
+                complete(HttpEntity("Error: " + e.getMessage))
+
+            }
+        }~
+        parameter("tran_id".as[Long]) {
+          (tran_id:Long) =>
+            try {
+              val trav = dbf.getArticleTravel(tran_id)
+
+              val ret = if (trav != null) trav.toJson.toString() else NOTFOUND
               complete(HttpEntity(ContentTypes.`application/json`, ret))
             }
             catch {

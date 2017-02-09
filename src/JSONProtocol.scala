@@ -1,6 +1,11 @@
 
+import java.util
+
 import spray.json._
 import classes._
+
+import scala.collection.JavaConversions._
+
 /**
   * Created by bp on 06/02/17.
   */
@@ -110,4 +115,18 @@ object JSONProtocol extends DefaultJsonProtocol {
 
   }
 
+    implicit object TravelJSON extends RootJsonFormat[classes.Travel]{
+
+      def write(travel: Travel): JsValue ={
+        val temp1: List[Transaction] = travel.getTransactionList.toList
+        val  temp2:List[JsValue] = for( t <- temp1) yield t.toJson
+        JsArray(temp2.toVector)
+
+      }
+
+      def read(v: JsValue): Travel =
+        throw new Exception("the transaction read breaks the logic. " +
+        "it isn't implemented")
+
+    }
 }
