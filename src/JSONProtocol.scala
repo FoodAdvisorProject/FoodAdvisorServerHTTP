@@ -22,7 +22,7 @@ object JSONProtocol extends DefaultJsonProtocol {
         "name"->JsString(a.name),
         "creator_id"->JsNumber(a.creator_id),
         "description"->JsString(a.description),
-        "photo"-> JsString("")
+        "photo"-> JsString(a.photo.toBase64)
       )
     }
 
@@ -36,7 +36,7 @@ object JSONProtocol extends DefaultJsonProtocol {
         "photo") match {
           // If Some fields aren't initialized throws an exception
           case Seq(JsNumber(id),JsString(n),JsNumber(c_id),JsString(desc),JsString(p))
-          => new Article(id.toLong,n,c_id.toLong,desc,null)
+          => new Article(id.toLong,n,c_id.toLong,desc,new Photo(p))
           case _
           => throw DeserializationException("Article Expected.")
         }
@@ -45,17 +45,17 @@ object JSONProtocol extends DefaultJsonProtocol {
 
     // @TODO Implement the RootJSONFormat for each class in classes
     implicit object UserJSON extends RootJsonFormat[classes.User]{
-      def write(obj: User): JsValue ={
+      def write(user: User): JsValue ={
       JsObject(
-        "user_id"->JsNumber(obj.user_id),
-        "login"->JsString(obj.login),
-        "passw"->JsString(obj.passw),
-        "email"->JsString(obj.email),
-        "name"->JsString(obj.name),
-        "second_name"->JsString(obj.second_name),
-        "bool" -> JsBoolean(obj.bool),
-        "enterprise_description"->JsString(obj.enterprise_description),
-        "photo"-> JsString("")
+        "user_id"->JsNumber(user.user_id),
+        "login"->JsString(user.login),
+        "passw"->JsString(user.passw),
+        "email"->JsString(user.email),
+        "name"->JsString(user.name),
+        "second_name"->JsString(user.second_name),
+        "bool" -> JsBoolean(user.bool),
+        "enterprise_description"->JsString(user.enterprise_description),
+        "photo"-> JsString(user.photo.toBase64)
       )
     }
 
@@ -72,7 +72,7 @@ object JSONProtocol extends DefaultJsonProtocol {
         "photo") match {
           // If Some fields aren't initialized throws an exception
           case Seq(JsNumber(id),JsString(l),JsString(p),JsString(e),JsString(n),JsString(s_n),JsBoolean(b),JsString(desc),JsString(photo))
-          => new User(id.toLong,l,p,e,n,s_n,b,desc,null)
+          => new User(id.toLong,l,p,e,n,s_n,b,desc,new Photo(photo))
           case _
           => throw DeserializationException("User Expected.")
         }
@@ -92,8 +92,8 @@ object JSONProtocol extends DefaultJsonProtocol {
       )
     }
 
-      def read(v: JsValue): Transaction = {
-      v.asJsObject().getFields(
+      def read(transaction: JsValue): Transaction = {
+      transaction.asJsObject().getFields(
         "id",
         "article_id",
         "buyer_id",
