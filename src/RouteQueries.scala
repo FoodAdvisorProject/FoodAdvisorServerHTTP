@@ -7,15 +7,6 @@ import spray.json._
 /**
   * Created by bp on 08/02/17.
   */
-/*
-@TODO
-Add cookies in order to let users get only personal information and limit privileges.
-function that has to be limited are:
--addUser
--addArticle
--addTransaction
--getUser
-*/
 object RouteQueries {
   val NOTFOUND ="Error: object not found"
   def getRoute(implicit dbf:DBFunctions ):Route = {
@@ -23,17 +14,19 @@ object RouteQueries {
 
     path ("getArticle"){
       get{
-        parameter("art_id".as[Long]) {
+        parameter("article_id".as[Long]) {
           (art_id: Long) => {
 
             try {
               val article: Article = dbf.getArticle(art_id)
-              val ret = if (article!=null) article.toJson.toString() else NOTFOUND
+              val ret: String = if (article!=null) article.toJson.toString() else NOTFOUND
               complete(HttpEntity(ContentTypes.`application/json`, ret ))
             }
             catch {
               case e:Throwable =>
-                complete(HttpEntity("Error: "+e.getMessage))
+                e.printStackTrace()
+                complete(HttpEntity("Error: " + e.getMessage ))
+
 
             }
 
@@ -81,7 +74,7 @@ object RouteQueries {
 
           }
         }~
-        parameter("art_id".as[Long],"user_id".as[Long]) {
+        parameter("art_id".as[Long],"usr_id".as[Long]) {
           (art_id: Long, usr_id: Long) => {
 
             try {
@@ -102,25 +95,11 @@ object RouteQueries {
     }~
     path("getArticleTravel"){
       get {
-        parameter("art_id".as[Long], "user_id".as[Long]) {
+        parameter("art_id".as[Long], "buyer_id".as[Long]) {
           (art_id: Long, buyer_id: Long) =>
             try {
-              val trav = dbf.getArticleTravel(art_id,buyer_id)
-              val ret = if (trav != null) trav.toJson.toString() else NOTFOUND
-              complete(HttpEntity(ContentTypes.`application/json`, ret))
-            }
-            catch {
-              case e: Throwable =>
-                complete(HttpEntity("Error: " + e.getMessage))
-
-            }
-        }~
-        parameter("tran_id".as[Long]) {
-          (tran_id:Long) =>
-            try {
-              val trav = dbf.getArticleTravel(tran_id)
-
-              val ret = if (trav != null) trav.toJson.toString() else NOTFOUND
+              val tran = dbf.getTransaction(art_id,buyer_id)
+              val ret = if (tran != null) tran.toJson.toString() else NOTFOUND
               complete(HttpEntity(ContentTypes.`application/json`, ret))
             }
             catch {

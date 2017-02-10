@@ -28,7 +28,6 @@ object WebServer {
     val d=new DBDriver(database, user, passw)
 
     implicit val dbf = new DBFunctions(d, user_table, article_table, transaction_table)
-
     implicit val system: ActorSystem = ActorSystem()
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
