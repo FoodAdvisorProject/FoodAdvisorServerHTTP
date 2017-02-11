@@ -1,7 +1,9 @@
+import java.util
+
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import classes.{Article, Photo}
+import classes.{Article, Photo, Travel}
 import database.DBFunctions
 import spray.json._
 /**
@@ -115,8 +117,8 @@ object RouteQueries {
 
           (tran_id: Long) =>
             try {
-              val tran = dbf.getTransaction(tran_id)
-              val ret = if (tran != null) tran.toJson.toString() else NOTFOUND
+              val trav: Travel = dbf.getArticleTravel(tran_id)
+              val ret = if (trav != null && trav.getTransactionList.size()>0 ) trav.toJson.toString() else NOTFOUND
               complete(HttpEntity(ContentTypes.`application/json`, ret))
             }
             catch {
@@ -125,6 +127,23 @@ object RouteQueries {
 
             }
         }
+      }
+    }~
+    path("getUserArticles"){
+      parameter("user_id".as[Long]){
+        (user_id:Long)=>
+          try{
+            val usr_articles: util.List[Article] = dbf.getUserArticles(user_id)
+            val ret = if (usr_articles!=null && usr_articles.size() >0 ) usr_articles.toJson.toString() else NOTFOUND
+            complete(HttpEntity(ContentTypes.`application/json`,ret))
+          }
+          catch {
+            case e: Throwable =>
+              e.printStackTrace()
+              complete(HttpEntity("Error: " + e.getMessage))
+
+
+          }
       }
     }~
     path("addUser"){

@@ -25,7 +25,6 @@ object JSONProtocol extends DefaultJsonProtocol {
         "description"->JsString(a.description),
         "photo"-> JsString("")
       )
-      println(ret)
       ret
     }
 
@@ -127,5 +126,16 @@ object JSONProtocol extends DefaultJsonProtocol {
              "it isn't implemented")
 
      }
+  implicit object ArticleListJSON extends RootJsonFormat[java.util.List[Article]]{
 
+    def write(article_list: java.util.List[Article]): JsValue ={
+      val  temp:List[JsValue] = for( art <- article_list.toList) yield art.toJson
+      JsArray(temp.toVector)
+
+    }
+
+    def read(v: JsValue): java.util.List[Article] =
+      throw new Exception("article list is not intended to be readed.")
+
+  }
 }

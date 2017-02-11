@@ -17,7 +17,7 @@ object WebServer {
   def main(args: Array[String]): Unit = {
     import JSONProtocol._
 
-    println("Hello!!")
+    println("Hello!")
 
 
 

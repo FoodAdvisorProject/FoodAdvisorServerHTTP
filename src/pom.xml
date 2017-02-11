@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rane</groupId>
+    <artifactId>foodadvisor</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <dependencies>
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.11.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rane</groupId>
+            <artifactId>foodadvisorDB</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.11 -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11</artifactId>
+            <version>2.4.16</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-core_2.11 -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http-core_2.11</artifactId>
+            <version>10.0.3</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http_2.11 -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http_2.11</artifactId>
+            <version>10.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http-marshallers-scala</artifactId>
+            <version>10.0.3</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.spray/spray-json_2.11 -->
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-json_2.11</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>6.0.5</version>
+        </dependency>
+
+    </dependencies>
+    <repositories>
+        <repository>
+            <id>local-foodadvisor-repo</id>
+            <url>file:///home/bp/IdeaProjects/foodadvisor/resources/local-foodadvisor-repo</url>
+        </repository>
+    </repositories>
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>reference.conf</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>WebServer</mainClass>
+                                </transformer>
+
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
