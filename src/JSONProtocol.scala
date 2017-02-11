@@ -1,6 +1,7 @@
 
 import spray.json._
 import classes._
+import scala.collection.JavaConversions._
 /**
   * Created by bp on 06/02/17.
   */
@@ -55,7 +56,7 @@ object JSONProtocol extends DefaultJsonProtocol {
         "email"->JsString(user.email),
         "name"->JsString(user.name),
         "second_name"->JsString(user.second_name),
-        "bool" -> JsBoolean(user.bool),
+        "is_enterprise" -> JsBoolean(user.bool),
         "enterprise_description"->JsString(user.enterprise_description),
         "photo"-> JsString("")
       )
@@ -69,8 +70,8 @@ object JSONProtocol extends DefaultJsonProtocol {
         "email",
         "name",
         "second_name",
-        "bool",
-        "enterprise,description",
+        "is_enterprise",
+        "enterprise_description",
         "photo") match {
           // If Some fields aren't initialized throws an exception
           case Seq(JsNumber(id),JsString(l),JsString(p),JsString(e),JsString(n),JsString(s_n),JsBoolean(b),JsString(desc),JsString(photo))
@@ -111,5 +112,20 @@ object JSONProtocol extends DefaultJsonProtocol {
     }
 
   }
+
+     implicit object TravelJSON extends RootJsonFormat[classes.Travel]{
+
+       def write(travel: Travel): JsValue ={
+         val temp1: List[Transaction] = travel.getTransactionList.toList
+         val  temp2:List[JsValue] = for( t <- temp1) yield t.toJson
+         JsArray(temp2.toVector)
+
+       }
+
+       def read(v: JsValue): Travel =
+         throw new Exception("the transaction read breaks the logic. " +
+             "it isn't implemented")
+
+     }
 
 }

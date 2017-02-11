@@ -23,10 +23,10 @@ object RouteQueries {
               complete(HttpEntity(ContentTypes.`application/json`, ret ))
             }
             catch {
-              case e:Throwable =>
+              case e:Throwable => {
                 e.printStackTrace()
                 complete(HttpEntity("Error: " + e.getMessage ))
-
+              }
 
             }
 
@@ -53,6 +53,22 @@ object RouteQueries {
             }
 
 
+        }
+      }
+    }~
+    path("getUserIdByEmail"){
+      get{
+        parameter("email"){
+          (email)=>
+            try{
+              val user_id = dbf.getUserIdByEmail(email)
+              complete(HttpEntity(user_id.toString))
+
+            }
+            catch{
+              case e:Throwable =>
+                complete(HttpEntity("Error "+e.getMessage))
+            }
         }
       }
     }~
@@ -95,10 +111,11 @@ object RouteQueries {
     }~
     path("getArticleTravel"){
       get {
-        parameter("art_id".as[Long], "buyer_id".as[Long]) {
-          (art_id: Long, buyer_id: Long) =>
+        parameter("tran_id".as[Long]) {
+
+          (tran_id: Long) =>
             try {
-              val tran = dbf.getTransaction(art_id,buyer_id)
+              val tran = dbf.getTransaction(tran_id)
               val ret = if (tran != null) tran.toJson.toString() else NOTFOUND
               complete(HttpEntity(ContentTypes.`application/json`, ret))
             }
@@ -112,8 +129,7 @@ object RouteQueries {
     }~
     path("addUser"){
       post{
-
-        parameter("login_name".as[String],
+        formFields("login_name".as[String],
           "passw_login".as[String],
           "email".as[String],
           "name".as[String],
@@ -137,9 +153,14 @@ object RouteQueries {
     }~
     path("addArticle"){
       post{
-        parameter("name".as[String],"creator_id".as[Long],"description".as[String],"longitude".as[Float],"latitude".as[Float],"photo"){
-          (name,cr_id,description,long,lat,photo)=>
+        formField("name".as[String],
+          "creator_id".as[Long],
+          "description".as[String],
+          "longitude".as[Float],
+          "latitude".as[Float],
+          "photo"){
 
+          (name,cr_id,description,long,lat,photo)=>
             try {
               dbf.addArticle(name,cr_id,description,long,lat,new Photo(photo))
               complete(HttpEntity("OK"))
@@ -152,7 +173,12 @@ object RouteQueries {
     }~
     path("addTransaction"){
       post{
-        parameter("article_id".as[Long],"buyer_id".as[Long],"seller_id".as[Long],"longitude".as[Float],"latitude".as[Float]){
+        formFields("article_id".as[Long],
+          "buyer_id".as[Long],
+          "seller_id".as[Long],
+          "longitude".as[Float],
+          "latitude".as[Float]){
+
           (art_id,buyer_id,seller_id,long,lat)=>
             try{
               dbf.addTransaction(art_id,buyer_id,seller_id,long,lat)
