@@ -23,7 +23,7 @@ object JSONProtocol extends DefaultJsonProtocol {
         "name"->JsString(a.name),
         "creator_id"->JsNumber(a.creator_id),
         "description"->JsString(a.description),
-        "photo"-> JsString("")
+        "photo"-> JsString(if (a.photo!=null && a.photo.toBase64() !=null ) a.photo.toBase64 else "")
       )
       ret
     }
@@ -57,7 +57,7 @@ object JSONProtocol extends DefaultJsonProtocol {
         "second_name"->JsString(user.second_name),
         "is_enterprise" -> JsBoolean(user.bool),
         "enterprise_description"->JsString(user.enterprise_description),
-        "photo"-> JsString("")
+        "photo"-> JsString(if (user.photo != null && user.photo.toBase64()!=null) user.photo.toBase64() else "")
       )
     }
 

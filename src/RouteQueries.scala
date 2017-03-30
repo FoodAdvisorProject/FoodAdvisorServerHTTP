@@ -10,7 +10,7 @@ import spray.json._
   * Created by bp on 08/02/17.
   */
 object RouteQueries {
-  val NOTFOUND ="Error: object not found"
+  val NOTFOUND ="NOTFOUND object not found"
   def getRoute(implicit dbf:DBFunctions ):Route = {
     import JSONProtocol._
 
@@ -92,7 +92,7 @@ object RouteQueries {
 
           }
         }~
-        parameter("art_id".as[Long],"usr_id".as[Long]) {
+        parameter("art_id".as[Long],"buyer_id".as[Long]) {
           (art_id: Long, usr_id: Long) => {
 
             try {
@@ -140,7 +140,7 @@ object RouteQueries {
           catch {
             case e: Throwable =>
               e.printStackTrace()
-              complete(HttpEntity("Error: " + e.getMessage))
+              complete(HttpEntity("Error!: " + e.getMessage+" "+e.getCause))
 
 
           }
@@ -149,7 +149,7 @@ object RouteQueries {
     path("addUser"){
       post{
         formFields("login_name".as[String],
-          "passw_login".as[String],
+          "login_passw  ".as[String],
           "email".as[String],
           "name".as[String],
           "second_name".as[String],

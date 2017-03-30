@@ -45,7 +45,7 @@ object WebServer {
     val route: Route = RouteQueries.getRoute
 
     //bind the route to address and port
-    println("try to bind ..")
+    println("try to bind ...")
     val bindingFuture = Http().bindAndHandle(route ,"0.0.0.0",8080)
 
     println("Everything is ok. Server is running. press Enter to exit")
