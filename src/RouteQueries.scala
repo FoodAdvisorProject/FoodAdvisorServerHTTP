@@ -56,6 +56,22 @@ object RouteQueries {
 
 
         }
+        parameter("email".as[String]){
+          (email:String)=>
+
+            try {
+              val user = dbf.getUser(dbf.getUserIdByEmail(email));
+              val ret = if (user!=null) user.toJson.toString() else NOTFOUND
+              complete(HttpEntity(ContentTypes.`application/json`, ret ))
+            }
+            catch {
+              case e:Throwable =>
+                complete(HttpEntity("Error: "+e.getMessage))
+
+            }
+
+
+        }
       }
     }~
     path("getUserIdByEmail"){

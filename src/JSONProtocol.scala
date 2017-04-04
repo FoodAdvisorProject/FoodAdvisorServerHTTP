@@ -1,6 +1,9 @@
 
 import spray.json._
 import classes._
+import database.DBFunctions
+import org.iq80.leveldb.DBFactory
+
 import scala.collection.JavaConversions._
 /**
   * Created by bp on 06/02/17.
@@ -47,18 +50,23 @@ object JSONProtocol extends DefaultJsonProtocol {
 
     // @TODO Implement the RootJSONFormat for each class in classes
     implicit object UserJSON extends RootJsonFormat[classes.User]{
-      def write(user: User): JsValue ={
-      JsObject(
-        "user_id"->JsNumber(user.user_id),
-        "login"->JsString(user.login),
-        "passw"->JsString(user.passw),
-        "email"->JsString(user.email),
-        "name"->JsString(user.name),
-        "second_name"->JsString(user.second_name),
-        "is_enterprise" -> JsBoolean(user.bool),
-        "enterprise_description"->JsString(user.enterprise_description),
-        "photo"-> JsString(if (user.photo != null && user.photo.toBase64()!=null) user.photo.toBase64() else "")
-      )
+      def write(user: User): JsObject ={
+        if(user == null) {
+          JsObject("user_id" -> JsNumber(0))
+        }
+        else {
+          JsObject(
+            "user_id" -> JsNumber(user.user_id),
+            "login" -> JsString(user.login),
+            "passw" -> JsString(user.passw),
+            "email" -> JsString(user.email),
+            "name" -> JsString(user.name),
+            "second_name" -> JsString(user.second_name),
+            "is_enterprise" -> JsBoolean(user.bool),
+            "enterprise_description" -> JsString(user.enterprise_description),
+            "photo" -> JsString(if (user.photo != null && user.photo.toBase64() != null) user.photo.toBase64() else "")
+          )
+        }
     }
 
       def read(v: JsValue): User = {
@@ -84,14 +92,29 @@ object JSONProtocol extends DefaultJsonProtocol {
     // @TODO Implement the RootJSONFormat for each class in classes
     implicit object TransactionJSON extends RootJsonFormat[classes.Transaction]{
       def write(obj: Transaction): JsValue ={
-      JsObject(
-        "id"->JsNumber(obj.id),
-        "article_id"->JsNumber(obj.article_id),
-        "buyer_id"->JsNumber(obj.buyer_id),
-        "seller_id"->JsNumber(obj.seller_id),
-        "longitude"->JsNumber(obj.longitude),
-        "latitude"->JsNumber(obj.latitude)
-      )
+        if (obj.isInstanceOf[RichTransaction]) {
+           val t_obj:RichTransaction = obj.asInstanceOf[classes.RichTransaction]
+          JsObject(
+              "id" -> JsNumber(obj.id),
+              "article_id" -> JsNumber(obj.article_id),
+              "buyer_id" -> JsNumber(obj.buyer_id),
+              "seller_id" -> JsNumber(obj.seller_id),
+              "longitude" -> JsNumber(obj.longitude),
+              "latitude" -> JsNumber(obj.latitude),
+              "buyer" -> t_obj.buyer.toJson,
+              "seller" -> t_obj.seller.toJson
+            )
+          }
+        else {
+          JsObject(
+            "id" -> JsNumber(obj.id),
+            "article_id" -> JsNumber(obj.article_id),
+            "buyer_id" -> JsNumber(obj.buyer_id),
+            "seller_id" -> JsNumber(obj.seller_id),
+            "longitude" -> JsNumber(obj.longitude),
+            "latitude" -> JsNumber(obj.latitude)
+          )
+        }
     }
 
       def read(transaction: JsValue): Transaction = {
