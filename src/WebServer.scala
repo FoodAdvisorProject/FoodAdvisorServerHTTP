@@ -2,10 +2,9 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-
 import database.{DBDriver, DBFunctions}
 
-
+import scala.collection.mutable
 import scala.io.StdIn
 
 /**
@@ -17,8 +16,7 @@ object WebServer {
   def main(args: Array[String]): Unit = {
     import JSONProtocol._
 
-    println("Hello!!")
-
+    println("Hello.!!!")
 
 
     val database ="test_db"

@@ -1,11 +1,14 @@
 import java.util
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, MediaTypes}
+import akka.http.scaladsl.server.ContentNegotiator.Alternative.MediaType
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import classes.{Article, Photo, Travel}
 import database.DBFunctions
 import spray.json._
+
+import scalaj.http.Base64
 /**
   * Created by bp on 08/02/17.
   */
@@ -38,6 +41,22 @@ object RouteQueries {
 
       }
     }~
+    path("getUserImage"){
+      get{
+       parameter("user_id".as[Long]){
+         (usr_id)=>
+           try{
+             val user=dbf.getUser(usr_id)
+             val ret: Array[Byte] = Base64.decode(user.photo.toBase64())
+             //complete(HttpEntity(MediaTypes.`image/png`,ret))
+             complete(HttpEntity(ret))
+           }catch{
+             case e:Throwable =>
+               complete(HttpEntity("Error: "+e.getMessage))
+           }
+       }
+      }
+    }~
     path("getUser"){
       get{
         parameter("user_id".as[Long]){
@@ -55,13 +74,19 @@ object RouteQueries {
             }
 
 
-        }
-        parameter("email".as[String]){
-          (email:String)=>
+        }~
+        parameter("email".as[String],"password".as[String]){
+          (email:String,password:String)=>
 
             try {
               val user = dbf.getUser(dbf.getUserIdByEmail(email));
-              val ret = if (user!=null) user.toJson.toString() else NOTFOUND
+              val ret =
+                if( user.passw == password) {
+                 if (user != null) user.toJson.toString() else NOTFOUND
+                }
+                else{
+                 "null"
+                }
               complete(HttpEntity(ContentTypes.`application/json`, ret ))
             }
             catch {
