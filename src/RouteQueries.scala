@@ -41,6 +41,30 @@ object RouteQueries {
 
       }
     }~
+    path ("getArticleImage"){
+      get{
+        parameter("article_id".as[Long]) {
+          (art_id: Long) => {
+
+            try {
+              val article: Article = dbf.getArticle(art_id)
+              val ret: Array[Byte] = Base64.decode(article.photo.toBase64())
+              complete(HttpEntity( ret ))
+            }
+            catch {
+              case e:Throwable => {
+                e.printStackTrace()
+                complete(HttpEntity("Error: " + e.getMessage ))
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+    }~
     path("getUserImage"){
       get{
        parameter("user_id".as[Long]){
@@ -202,7 +226,8 @@ object RouteQueries {
             try{
 
               dbf.addUser(login,passw,email,name,sec_name,is_enterpr,enterpr_desc, new Photo(photo))
-              complete(HttpEntity("OK"))
+              val ret = dbf.getUser(dbf.getUserIdByEmail(email));
+              complete(HttpEntity(ret.user_id.toString()));
             }catch{
               case e:Throwable => complete("Error: "+e.getMessage)
 
@@ -222,8 +247,8 @@ object RouteQueries {
 
           (name,cr_id,description,long,lat,photo)=>
             try {
-              dbf.addArticle(name,cr_id,description,long,lat,new Photo(photo))
-              complete(HttpEntity("OK"))
+              val ret: Long = dbf.addArticle(name,cr_id,description,long,lat,new Photo(photo))
+              complete(HttpEntity(ret.toString()))
             }catch{
               case e:Throwable => complete("Error: "+e.getMessage)
             }
@@ -242,7 +267,8 @@ object RouteQueries {
           (art_id,buyer_id,seller_id,long,lat)=>
             try{
               dbf.addTransaction(art_id,buyer_id,seller_id,long,lat)
-              complete(HttpEntity("OK"))
+              val tr = dbf.getTransaction(art_id,buyer_id )
+              complete(HttpEntity(tr.id.toString()))
             }catch{
               case e:Throwable => complete("Error: "+e.getMessage)
             }
