@@ -161,4 +161,16 @@ object JSONProtocol extends DefaultJsonProtocol {
       throw new Exception("article list is not intended to be readed.")
 
   }
+  implicit object TravelListJSON extends RootJsonFormat[java.util.List[Travel]]{
+
+    def write(travel_list: java.util.List[Travel]): JsValue ={
+      val  temp:List[JsValue] = for( tr <- travel_list.toList) yield tr.toJson
+      JsArray(temp.toVector)
+
+    }
+
+    def read(v: JsValue): java.util.List[Travel] =
+      throw new Exception("travel list is not intended to be readed.")
+
+  }
 }

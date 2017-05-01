@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.Route
 import classes.{Article, Photo, Travel}
 import database.DBFunctions
 import spray.json._
-
+import scala.concurrent.duration._
 import scalaj.http.Base64
 /**
   * Created by bp on 08/02/17.
@@ -48,7 +48,8 @@ object RouteQueries {
 
             try {
               val article: Article = dbf.getArticle(art_id)
-              val ret: Array[Byte] = Base64.decode(article.photo.toBase64())
+              println("debugging photo : \n"+article.photo.toBase64())
+              val ret: Array[Byte] = Base64.decode(article.photo.toBase64().filter(_>=' '))
               complete(HttpEntity( ret ))
             }
             catch {
@@ -71,7 +72,7 @@ object RouteQueries {
          (usr_id)=>
            try{
              val user=dbf.getUser(usr_id)
-             val ret: Array[Byte] = Base64.decode(user.photo.toBase64())
+             val ret: Array[Byte] = Base64.decode(user.photo.toBase64().filter(_>=' '))
              //complete(HttpEntity(MediaTypes.`image/png`,ret))
              complete(HttpEntity(ret))
            }catch{
@@ -176,23 +177,42 @@ object RouteQueries {
         }
       }
     }~
-    path("getArticleTravel"){
-      get {
-        parameter("tran_id".as[Long]) {
+      path("getArticleTravel"){
+        get {
+          parameter("tran_id".as[Long]) {
 
-          (tran_id: Long) =>
-            try {
-              val trav: Travel = dbf.getArticleTravel(tran_id)
-              val ret = if (trav != null && trav.getTransactionList.size()>0 ) trav.toJson.toString() else NOTFOUND
-              complete(HttpEntity(ContentTypes.`application/json`, ret))
-            }
-            catch {
-              case e: Throwable =>
-                complete(HttpEntity("Error: " + e.getMessage))
+            (tran_id: Long) =>
+              try {
+                val trav: Travel = dbf.getArticleTravel(tran_id)
+                val ret = if (trav != null && trav.getTransactionList.size()>0 ) trav.toJson.toString() else NOTFOUND
+                complete(HttpEntity(ContentTypes.`application/json`, ret))
+              }
+              catch {
+                case e: Throwable =>
+                  complete(HttpEntity("Error: " + e.getMessage))
 
-            }
+              }
+          }
         }
-      }
+    }~
+      path("getArticleLife"){
+        get {
+          parameter("article_id".as[Long],"seller_id".as[Long]) {
+
+            (article_id: Long , seller_id: Long) =>
+              try {
+                val art_life: util.List[Travel] = dbf.getArticleLife(article_id,seller_id)
+
+                val ret = if (art_life != null && art_life.size() >0 ) art_life.toJson.toString() else NOTFOUND
+                complete(HttpEntity(ContentTypes.`application/json`, ret))
+              }
+              catch {
+                case e: Throwable =>
+                  e.printStackTrace();
+                  complete(HttpEntity("Error: " + e.getMessage))
+              }
+          }
+        }
     }~
     path("getUserArticles"){
       parameter("user_id".as[Long]){
@@ -211,48 +231,52 @@ object RouteQueries {
           }
       }
     }~
-    path("addUser"){
-      post{
-        formFields("login_name".as[String],
-          "login_passw  ".as[String],
-          "email".as[String],
-          "name".as[String],
-          "second_name".as[String],
-          "is_enterprise".as[Int],
-          "enterprise_description".as[String],
-          "photo".as[String]){
+    path("addUser") {
+      toStrictEntity(10.seconds) {
+        post {
+          formFields("login_name".as[String],
+            "login_passw".as[String],
+            "email".as[String],
+            "name".as[String],
+            "second_name".as[String],
+            "is_enterprise".as[Int],
+            "enterprise_description".as[String],
+            "photo".as[String]) {
 
-          (login,passw,email,name,sec_name,is_enterpr,enterpr_desc,photo)=>
-            try{
+            (login, passw, email, name, sec_name, is_enterpr, enterpr_desc, photo) =>
+              try {
 
-              dbf.addUser(login,passw,email,name,sec_name,is_enterpr,enterpr_desc, new Photo(photo))
-              val ret = dbf.getUser(dbf.getUserIdByEmail(email));
-              complete(HttpEntity(ret.user_id.toString()));
-            }catch{
-              case e:Throwable => complete("Error: "+e.getMessage)
+                dbf.addUser(login, passw, email, name, sec_name, is_enterpr, enterpr_desc, new Photo(photo))
+                val ret = dbf.getUser(dbf.getUserIdByEmail(email));
+                complete(HttpEntity(ret.user_id.toString()));
+              } catch {
+                case e: Throwable => complete("Error: " + e.getMessage)
 
-            }
+              }
 
+          }
         }
       }
     }~
     path("addArticle"){
-      post{
-        formField("name".as[String],
-          "creator_id".as[Long],
-          "description".as[String],
-          "longitude".as[Float],
-          "latitude".as[Float],
-          "photo"){
+      toStrictEntity(10.seconds) {
+        post {
+          formField("name".as[String],
+            "creator_id".as[Long],
+            "description".as[String],
+            "longitude".as[Float],
+            "latitude".as[Float],
+            "photo") {
 
-          (name,cr_id,description,long,lat,photo)=>
-            try {
-              val ret: Long = dbf.addArticle(name,cr_id,description,long,lat,new Photo(photo))
-              complete(HttpEntity(ret.toString()))
-            }catch{
-              case e:Throwable => complete("Error: "+e.getMessage)
-            }
+            (name, cr_id, description, long, lat, photo) =>
+              try {
+                val ret: Long = dbf.addArticle(name, cr_id, description, long, lat, new Photo(photo))
+                complete(HttpEntity(ret.toString()))
+              } catch {
+                case e: Throwable => complete("Error: " + e.getMessage)
+              }
 
+          }
         }
       }
     }~
